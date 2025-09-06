@@ -1,12 +1,22 @@
-FROM nikolaik/python-nodejs:python3.10-nodejs19
 
+FROM nikolaik/python-nodejs:python3.10-nodejs20
+
+# System dependencies (ffmpeg)
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ffmpeg \
-    && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-COPY . /app/
-WORKDIR /app/
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first (better for caching)
+COPY requirements.txt .
+
+# Install Python dependencies
 RUN pip3 install --no-cache-dir -U -r requirements.txt
 
-CMD python3 -m Hack
+# Copy rest of the app
+COPY . .
+
+# Default command
+CMD ["python3", "-m", "Hack"]
